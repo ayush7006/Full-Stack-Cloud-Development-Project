@@ -46,6 +46,7 @@ jobs: # list of things to do
         run: pylint *.py
         working-directory: functions/sample/python
 
+
   lint_django_server:
     name: Linting Django Server 
     runs-on: ubuntu-latest
