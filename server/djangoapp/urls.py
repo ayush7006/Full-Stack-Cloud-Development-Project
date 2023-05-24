@@ -27,6 +27,7 @@ urlpatterns = [
 
 
     # path for dealer reviews view
+    path('dealer/<int:dealer_id>/', views.get_dealer_details, name='dealer_details'),
 
     # path for add a review view
 
