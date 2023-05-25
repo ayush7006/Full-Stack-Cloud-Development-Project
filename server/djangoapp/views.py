@@ -91,13 +91,15 @@ def registration_request(request):
 # Update the `get_dealerships` view to render the index page with a list of dealerships
 def get_dealerships(request):
     if request.method == "GET":
+        context = {}
         url = "https://us-south.functions.appdomain.cloud/api/v1/web/3e9893f1-9d31-4f3e-a5b7-128fe1b7736e/default/get-dealership"
         # Get dealers from the URL
-        dealerships = get_dealers_from_cf(url)
+        #dealerships = get_dealers_from_cf(url)
         # Concat all dealer's short name
-        dealer_names = ' '.join([dealer.short_name for dealer in dealerships])
+        #dealer_names = ' '.join([dealer.short_name for dealer in dealerships])
         # Return a list of dealer short name
-        return HttpResponse(dealer_names)
+        context["dealerships"] = get_dealers_from_cf(url)
+        return render(request, 'djangoapp/index.html', context)
 
 
 # Create a `get_dealer_details` view to render the reviews of a dealer
@@ -107,7 +109,6 @@ def get_dealerships(request):
 # Create a `add_review` view to submit a review
 # def add_review(request, dealer_id):
 # ...
-
 def get_dealer_details(request, dealer_id):
     context = {}
     if request.method == "GET":
@@ -117,14 +118,13 @@ def get_dealer_details(request, dealer_id):
             "reviews":  reviews, 
             "dealer_id": dealer_id
         }
-
         return render(request, 'djangoapp/dealer_details.html', context)
 
 # Create a `add_review` view to submit a review
 def add_review(request, dealer_id):
     if request.method == "GET":
         dealersid = dealer_id
-        url = "https://5b93346d.us-south.apigw.appdomain.cloud/dealerships/dealer-get?dealerId={0}".format(dealersid)
+        url = "https://us-south.functions.appdomain.cloud/api/v1/web/3e9893f1-9d31-4f3e-a5b7-128fe1b7736e/default/get-dealership?dealerId={0}".format(dealersid)
         # Get dealers from the URL
         context = {
             "cars": CarModel.objects.all(),
@@ -148,7 +148,7 @@ def add_review(request, dealer_id):
                 review["car_year"]= car.year.strftime("%Y")
             json_payload = {"review": review}
             print (json_payload)
-            url = "https://5b93346d.us-south.apigw.appdomain.cloud/dealerships/reviews/review-post"
+            url = "https://us-south.functions.appdomain.cloud/api/v1/web/3e9893f1-9d31-4f3e-a5b7-128fe1b7736e/default/post-review"
             post_request(url, json_payload, dealerId=dealer_id)
             return redirect("djangoapp:dealer_details", dealer_id=dealer_id)
         else:
