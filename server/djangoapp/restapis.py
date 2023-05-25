@@ -93,56 +93,44 @@ def get_dealer_by_id_from_cf(url, dealer_id):
     return dealer_obj
 
 
-def get_dealer_reviews_from_cf(url, dealer_id):
+def get_dealer_reviews_from_cf(url, **kwargs):
     results = []
-    # Perform a GET request with the specified dealer id
-    json_result = get_request(url, dealerId=dealer_id)
-
+    dealer_id = kwargs.get("id")
+    if dealer_id:
+        json_result = get_request(url, dealer_id=dealer_id)
+    else:
+        json_result = get_request(url)
+    # print(json_result)
     if json_result:
-        # Get all review data from the response
-        reviews = json_result["body"]["data"]["docs"]
-        # For every review in the response
-        for review in reviews:
-            # Create a DealerReview object from the data
-            # These values must be present
-            review_content = review["review"]
-            id = review["_id"]
-            name = review["name"]
-            purchase = review["purchase"]
-            dealership = review["dealership"]
-
-            try:
-                # These values may be missing
-                car_make = review["car_make"]
-                car_model = review["car_model"]
-                car_year = review["car_year"]
-                purchase_date = review["purchase_date"]
-
-                # Creating a review object
-                review_obj = DealerReview(dealership=dealership, id=id, name=name, 
-                                          purchase=purchase, review=review_content, car_make=car_make, 
-                                          car_model=car_model, car_year=car_year, purchase_date=purchase_date
-                                          )
-
-            except KeyError:
-                print("Something is missing from this review. Using default values.")
-                # Creating a review object with some default values
-                review_obj = DealerReview(
-                    dealership=dealership, id=id, name=name, purchase=purchase, review=review_content)
-
-            # Analysing the sentiment of the review object's review text and saving it to the object attribute "sentiment"
-            review_obj.sentiment = analyze_review_sentiments(review_obj.review)
-            print(f"sentiment: {review_obj.sentiment}")
-
-            # Saving the review object to the list of results
+        print("line 105",json_result)
+        reviews = json_result["data"]["docs"]
+        for dealer_review in reviews:
+            review_obj = DealerReview(dealership=dealer_review["dealership"],
+                                   name=dealer_review["name"],
+                                   purchase=dealer_review["purchase"],
+                                   review=dealer_review["review"])
+            if "id" in dealer_review:
+                review_obj.id = dealer_review["id"]
+            if "purchase_date" in dealer_review:
+                review_obj.purchase_date = dealer_review["purchase_date"]
+            if "car_make" in dealer_review:
+                review_obj.car_make = dealer_review["car_make"]
+            if "car_model" in dealer_review:
+                review_obj.car_model = dealer_review["car_model"]
+            if "car_year" in dealer_review:
+                review_obj.car_year = dealer_review["car_year"]
+            
+            sentiment = analyze_review_sentiments(review_obj.review)
+            print(sentiment)
+            review_obj.sentiment = sentiment
             results.append(review_obj)
 
     return results
 
 
 def analyze_review_sentiments(text):
-    url = "https://api.eu-gb.natural-language-understanding.watson.cloud.ibm.com/instances/a7d55b2b-30e4-4d58-91a1-bd84cb7b5c14"
-    api_key = "S8Ncd3903aq7KoTo6MJPqi3nrpIvivQuWJdwqmMQifFK"
+    url = "https://api.us-south.natural-language-understanding.watson.cloud.ibm.com/instances/9ec926d6-4e04-44c2-9169-52f175f98441"
+    api_key = "GI_yg070ghpXXgjbSkazLJlAuxtzdp08yFHDDhYAlsLf"
     authenticator = IAMAuthenticator(api_key)
     natural_language_understanding = NaturalLanguageUnderstandingV1(version='2021-08-01',authenticator=authenticator)
     natural_language_understanding.set_service_url(url)
