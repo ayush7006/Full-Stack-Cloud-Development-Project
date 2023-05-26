@@ -1,6 +1,6 @@
 import requests
 import json
-from .models import CarDealer, DealerReview
+from .models import CarDealer, DealerReview, CarModel
 from requests.auth import HTTPBasicAuth
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 from ibm_watson import NaturalLanguageUnderstandingV1
@@ -82,6 +82,7 @@ def get_dealers_from_cf(url, **kwargs):
             results.append(dealer_obj)
 
     return results
+
 
 
 def get_dealer_by_id_from_cf(url, dealer_id):
