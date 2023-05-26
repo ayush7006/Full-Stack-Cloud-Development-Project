@@ -3,7 +3,7 @@
     {% if reviews %}
         {% if user.is_authenticated %}
             <div style="margin: 10px;">
-                <a class="btn btn-primary" href="{% url 'djangoapp:add_review' dealer_id %}"><b>Write a car review</b></a>
+                <a class="btn btn-primary" href="{% url 'djangoapp:add_review' dealer_id%}"><b>Write a car review</b></a>
             </div>
         {% endif %}
         <div class="card-columns">
